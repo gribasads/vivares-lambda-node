@@ -26,6 +26,10 @@ module.exports.getUser = async (event) => {
   return await AuthController.getUser(event);
 };
 
+module.exports.getUserProfile = async (event) => {
+  return await AuthController.getUserProfile(event);
+};
+
 // Place Handlers
 module.exports.createPlace = async (event) => {
   return await PlaceController.createPlace(event);

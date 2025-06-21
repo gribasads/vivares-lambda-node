@@ -1,5 +1,7 @@
 const CodeService = require("../services/codeService");
 const User = require("../models/User");
+const Apartment = require("../models/Apartment");
+const Condominium = require("../models/Condominium");
 const jwt = require("jsonwebtoken");
 const db = require("../utils/db");
 
@@ -59,18 +61,51 @@ exports.verifyCode = async (event) => {
       return createResponse(400, { error: "Código inválido ou expirado" });
     }
 
+    // Buscar apartamento do usuário
+    const apartment = await Apartment.findOne({ owner: user._id })
+      .populate('condominium')
+      .exec();
+
+    // Preparar payload do JWT com dados necessários
+    const tokenPayload = {
+      userId: user._id,
+      email: user.email,
+      name: user.name
+    };
+
+    if (apartment) {
+      tokenPayload.apartmentId = apartment._id;
+      tokenPayload.condominiumId = apartment.condominium._id;
+      tokenPayload.apartmentNumber = apartment.number;
+      tokenPayload.condominiumName = apartment.condominium.name;
+    }
+
     if (user.authToken) {
-      return createResponse(200, {
-        token: user.authToken,
-        user: {
-          id: user._id,
-          email: user.email
-        }
-      });
+      // Verificar se o token atual ainda é válido
+      try {
+        const decoded = jwt.verify(user.authToken, process.env.JWT_SECRET);
+        
+        // Se o token for válido, usar os dados dele diretamente
+        return createResponse(200, {
+          token: user.authToken,
+          user: {
+            id: decoded.userId,
+            email: decoded.email,
+            name: decoded.name,
+            apartmentId: decoded.apartmentId,
+            condominiumId: decoded.condominiumId,
+            apartmentNumber: decoded.apartmentNumber,
+            condominiumName: decoded.condominiumName
+          }
+        });
+      } catch (error) {
+        // Token expirado ou inválido, gerar novo
+        console.log('Token expirado ou inválido, gerando novo...');
+      }
     }
 
     const token = jwt.sign(
-      { userId: user._id },
+      tokenPayload,
       process.env.JWT_SECRET || 'seu_segredo_jwt',
       { expiresIn: "100y" }
     );
@@ -84,7 +119,12 @@ exports.verifyCode = async (event) => {
       token,
       user: {
         id: user._id,
-        email: user.email
+        email: user.email,
+        name: user.name,
+        apartmentId: apartment?._id,
+        condominiumId: apartment?.condominium?._id,
+        apartmentNumber: apartment?.number,
+        condominiumName: apartment?.condominium?.name
       }
     });
   } catch (error) {
@@ -164,6 +204,65 @@ exports.getUser = async (event) => {
       return createResponse(404, { error: "Usuário não encontrado" });
     }
   } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.getUserProfile = async (event) => {
+  try {
+    await db.ensureConnection();
+    
+    // Extrair token do header Authorization
+    const authHeader = event.headers.Authorization || event.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return createResponse(401, { error: "Token de autorização não fornecido" });
+    }
+
+    const token = authHeader.substring(7);
+    
+    // Verificar e decodificar o token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'seu_segredo_jwt');
+    
+    // Se o token já contém os dados necessários, usar diretamente
+    if (decoded.apartmentId && decoded.condominiumId) {
+      const userProfile = {
+        id: decoded.userId,
+        email: decoded.email,
+        name: decoded.name,
+        apartmentId: decoded.apartmentId,
+        condominiumId: decoded.condominiumId,
+        apartmentNumber: decoded.apartmentNumber,
+        condominiumName: decoded.condominiumName
+      };
+      
+      return createResponse(200, userProfile);
+    }
+    
+    // Se o token não contém dados completos, buscar no banco
+    const user = await User.findById(decoded.userId).exec();
+    if (!user) {
+      return createResponse(404, { error: "Usuário não encontrado" });
+    }
+
+    // Buscar apartamento e condomínio
+    const apartment = await Apartment.findOne({ owner: user._id })
+      .populate('condominium')
+      .exec();
+
+    const userProfile = {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      apartmentId: apartment?._id,
+      condominiumId: apartment?.condominium?._id,
+      apartmentNumber: apartment?.number,
+      condominiumName: apartment?.condominium?.name,
+      condominiumAddress: apartment?.condominium?.address
+    };
+
+    return createResponse(200, userProfile);
+  } catch (error) {
+    console.error('Erro em getUserProfile:', error);
     return createResponse(500, { error: error.message });
   }
 }; 
