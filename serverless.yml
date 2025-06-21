@@ -1,0 +1,391 @@
+service: vivares-lambda
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  timeout: 30
+  environment:
+    STAGE: ${opt:stage, 'local'}
+    NODE_OPTIONS: --enable-source-maps
+    MONGO_URI: ${ssm:/vivares/dev/MONGO_URI}
+    JWT_SECRET: ${ssm:/vivares/dev/JWT_SECRET}
+    EMAIL_USER: ${ssm:/vivares/dev/EMAIL_USER}
+    EMAIL_PASSWORD: ${ssm:/vivares/dev/EMAIL_PASSWORD}
+    AWS_ACCESS_KEY_ID: ${ssm:/vivares/dev/AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${ssm:/vivares/dev/AWS_SECRET_ACCESS_KEY}
+    AWS_BUCKET_NAME: ${ssm:/vivares/dev/AWS_BUCKET_NAME}
+    AWS_REGION: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource:
+            - "arn:aws:logs:*:*:*"
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - ssm:GetParameters
+            - ssm:GetParametersByPath
+            - ssm:DescribeParameters
+          Resource:
+            - "arn:aws:ssm:${self:provider.region}:*:parameter/vivares/*"
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource:
+            - "arn:aws:s3:::${self:provider.environment.AWS_BUCKET_NAME}/*"
+
+functions:
+  # Auth Functions
+  requestCode:
+    handler: handler.requestCode
+    events:
+      - http:
+          path: auth/request-code
+          method: ANY
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
+  verifyCode:
+    handler: handler.verifyCode
+    events:
+      - http:
+          path: auth/verify-code
+          method: ANY
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
+  updateUserName:
+    handler: handler.updateUserName
+    events:
+      - http:
+          path: auth/update-name
+          method: ANY
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
+  getUsers:
+    handler: handler.getUsers
+    events:
+      - http:
+          path: auth/users
+          method: ANY
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
+  getUser:
+    handler: handler.getUser
+    events:
+      - http:
+          path: auth/users/{id}
+          method: ANY
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
+
+  # Places Functions
+  uploadPlaceImage:
+    handler: handler.uploadPlaceImage
+    events:
+      - http:
+          path: places/upload-image
+          method: POST
+          cors: true
+  createPlace:
+    handler: handler.createPlace
+    events:
+      - http:
+          path: places
+          method: POST
+          cors: true
+  getPlaces:
+    handler: handler.getPlaces
+    events:
+      - http:
+          path: places
+          method: GET
+          cors: true
+  getPlace:
+    handler: handler.getPlace
+    events:
+      - http:
+          path: places/{id}
+          method: GET
+          cors: true
+  getPlacesByCondominium:
+    handler: handler.getPlacesByCondominium
+    events:
+      - http:
+          path: places/condominium/{id}
+          method: GET
+          cors: true
+  updatePlace:
+    handler: handler.updatePlace
+    events:
+      - http:
+          path: places/{id}
+          method: PUT
+          cors: true
+  deletePlace:
+    handler: handler.deletePlace
+    events:
+      - http:
+          path: places/{id}
+          method: DELETE
+          cors: true
+
+  # Books Functions
+  createBook:
+    handler: handler.createBook
+    events:
+      - http:
+          path: books
+          method: POST
+          cors: true
+  getBooks:
+    handler: handler.getBooks
+    events:
+      - http:
+          path: books
+          method: GET
+          cors: true
+  getBook:
+    handler: handler.getBook
+    events:
+      - http:
+          path: books/{id}
+          method: GET
+          cors: true
+  updateBook:
+    handler: handler.updateBook
+    events:
+      - http:
+          path: books/{id}
+          method: PUT
+          cors: true
+  deleteBook:
+    handler: handler.deleteBook
+    events:
+      - http:
+          path: books/{id}
+          method: DELETE
+          cors: true
+  updateBookStatus:
+    handler: handler.updateBookStatus
+    events:
+      - http:
+          path: books/{id}/status
+          method: PATCH
+          cors: true
+
+  # Posts Functions
+  uploadPostImage:
+    handler: handler.uploadPostImage
+    events:
+      - http:
+          path: posts/upload-image
+          method: POST
+          cors: true
+  createPost:
+    handler: handler.createPost
+    events:
+      - http:
+          path: posts
+          method: POST
+          cors: true
+  getPosts:
+    handler: handler.getPosts
+    events:
+      - http:
+          path: posts
+          method: GET
+          cors: true
+  getPost:
+    handler: handler.getPost
+    events:
+      - http:
+          path: posts/{id}
+          method: GET
+          cors: true
+  updatePost:
+    handler: handler.updatePost
+    events:
+      - http:
+          path: posts/{id}
+          method: PUT
+          cors: true
+  deletePost:
+    handler: handler.deletePost
+    events:
+      - http:
+          path: posts/{id}
+          method: DELETE
+          cors: true
+
+  # Condominium Functions
+  createCondominium:
+    handler: handler.createCondominium
+    events:
+      - http:
+          path: condominiums
+          method: POST
+          cors: true
+  getCondominiums:
+    handler: handler.getCondominiums
+    events:
+      - http:
+          path: condominiums
+          method: GET
+          cors: true
+  getCondominium:
+    handler: handler.getCondominium
+    events:
+      - http:
+          path: condominiums/{id}
+          method: GET
+          cors: true
+  updateCondominium:
+    handler: handler.updateCondominium
+    events:
+      - http:
+          path: condominiums/{id}
+          method: PUT
+          cors: true
+  deleteCondominium:
+    handler: handler.deleteCondominium
+    events:
+      - http:
+          path: condominiums/{id}
+          method: DELETE
+          cors: true
+  getCondominiumApartments:
+    handler: handler.getCondominiumApartments
+    events:
+      - http:
+          path: condominiums/{id}/apartments
+          method: GET
+          cors: true
+
+  # Apartment Functions
+  createApartment:
+    handler: handler.createApartment
+    events:
+      - http:
+          path: apartments
+          method: POST
+          cors: true
+  getApartments:
+    handler: handler.getApartments
+    events:
+      - http:
+          path: apartments
+          method: GET
+          cors: true
+  getApartment:
+    handler: handler.getApartment
+    events:
+      - http:
+          path: apartments/{id}
+          method: GET
+          cors: true
+  updateApartment:
+    handler: handler.updateApartment
+    events:
+      - http:
+          path: apartments/{id}
+          method: PUT
+          cors: true
+  deleteApartment:
+    handler: handler.deleteApartment
+    events:
+      - http:
+          path: apartments/{id}
+          method: DELETE
+          cors: true
+  getUserApartments:
+    handler: handler.getUserApartments
+    events:
+      - http:
+          path: users/{userId}/apartments
+          method: GET
+          cors: true
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+  cors:
+    origin:
+      local: 'http://localhost:3001'
+      dev: 'https://vivares-web.vercel.app'

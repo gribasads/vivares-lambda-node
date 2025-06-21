@@ -1,0 +1,102 @@
+const Book = require("../models/Books");
+const db = require("../utils/db");
+
+const createResponse = (statusCode, body) => ({
+  statusCode,
+  headers: {
+    'Access-Control-Allow-Origin': process.env.STAGE === 'local' ? 'http://localhost:3001' : 'https://vivares-web.vercel.app',
+    'Access-Control-Allow-Credentials': true,
+    'Access-Control-Allow-Headers': 'Content-Type,Token,token,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent',
+    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT,DELETE'
+  },
+  body: JSON.stringify(body)
+});
+
+exports.createBook = async (event) => {
+  try {
+    await db.ensureConnection();
+    const bookData = JSON.parse(event.body);
+    const book = new Book(bookData);
+    await book.save();
+    return createResponse(201, book);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.getBooks = async (event) => {
+  try {
+    await db.ensureConnection();
+    const books = await Book.find()
+      .populate('placeName')
+      .populate('username');
+    return createResponse(200, books);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.getBook = async (event) => {
+  try {
+    await db.ensureConnection();
+    const book = await Book.findById(event.pathParameters.id)
+      .populate('placeName')
+      .populate('username');
+    if (!book) {
+      return createResponse(404, { error: "Reserva não encontrada" });
+    }
+    return createResponse(200, book);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.updateBook = async (event) => {
+  try {
+    await db.ensureConnection();
+    const book = await Book.findByIdAndUpdate(
+      event.pathParameters.id,
+      JSON.parse(event.body),
+      { new: true }
+    ).populate('placeName').populate('username');
+    
+    if (!book) {
+      return createResponse(404, { error: "Reserva não encontrada" });
+    }
+    return createResponse(200, book);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.deleteBook = async (event) => {
+  try {
+    await db.ensureConnection();
+    const book = await Book.findByIdAndDelete(event.pathParameters.id);
+    if (!book) {
+      return createResponse(404, { error: "Reserva não encontrada" });
+    }
+    return createResponse(200, { message: "Reserva removida com sucesso" });
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.updateBookStatus = async (event) => {
+  try {
+    await db.ensureConnection();
+    const { status } = JSON.parse(event.body);
+    const book = await Book.findByIdAndUpdate(
+      event.pathParameters.id,
+      { status },
+      { new: true }
+    ).populate('placeName').populate('username');
+    
+    if (!book) {
+      return createResponse(404, { error: "Reserva não encontrada" });
+    }
+    return createResponse(200, book);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+}; 
