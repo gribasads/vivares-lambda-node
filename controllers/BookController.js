@@ -33,7 +33,6 @@ exports.getBooks = async (event) => {
   try {
     await db.ensureConnection();
     const books = await Book.find()
-      .populate('placeId')
       .populate('userId');
     return createResponse(200, books);
   } catch (error) {
@@ -45,7 +44,6 @@ exports.getBook = async (event) => {
   try {
     await db.ensureConnection();
     const book = await Book.findById(event.pathParameters.id)
-      .populate('placeId')
       .populate('userId');
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
@@ -63,7 +61,7 @@ exports.updateBook = async (event) => {
       event.pathParameters.id,
       JSON.parse(event.body),
       { new: true }
-    ).populate('placeId').populate('userId');
+    ).populate('userId');
     
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
@@ -95,12 +93,42 @@ exports.updateBookStatus = async (event) => {
       event.pathParameters.id,
       { status },
       { new: true }
-    ).populate('placeId').populate('userId');
+    ).populate('userId');
     
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
     }
     return createResponse(200, book);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+exports.getBooksByUserId = async (event) => {
+  try {
+    await db.ensureConnection();
+    const userId = event.pathParameters.userId;
+    
+    // Buscar reservas do usuário
+    const books = await Book.find({ userId })
+      .populate('userId', 'name email');
+    
+    // Buscar os dados dos places para cada reserva
+    const Place = require("../models/Places");
+    const formattedBooks = await Promise.all(books.map(async (book) => {
+      // Buscar o place pelo campo id
+      const place = await Place.findOne({ id: book.placeId });
+      
+      return {
+        placeName: place?.name || 'Local não encontrado',
+        dateHour: book.dateHour,
+        reason: book.reason,
+        guests: book.guests,
+        status: book.status
+      };
+    }));
+    
+    return createResponse(200, formattedBooks);
   } catch (error) {
     return createResponse(500, { error: error.message });
   }

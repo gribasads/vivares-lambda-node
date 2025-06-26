@@ -245,6 +245,13 @@ functions:
           path: books/{id}
           method: GET
           cors: true
+  getBooksByUserId:
+    handler: handler.getBooksByUserId
+    events:
+      - http:
+          path: books/user/{userId}
+          method: GET
+          cors: true
   updateBook:
     handler: handler.updateBook
     events:
