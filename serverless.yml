@@ -13,10 +13,7 @@ provider:
     JWT_SECRET: ${ssm:/vivares/dev/JWT_SECRET}
     EMAIL_USER: ${ssm:/vivares/dev/EMAIL_USER}
     EMAIL_PASSWORD: ${ssm:/vivares/dev/EMAIL_PASSWORD}
-    AWS_ACCESS_KEY_ID: ${ssm:/vivares/dev/AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${ssm:/vivares/dev/AWS_SECRET_ACCESS_KEY}
     AWS_BUCKET_NAME: ${ssm:/vivares/dev/AWS_BUCKET_NAME}
-    AWS_REGION: us-east-1
   iam:
     role:
       statements:

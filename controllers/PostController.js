@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
 
 const s3 = new AWS.S3({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: 'us-east-1',
   signatureVersion: 'v4',
   s3ForcePathStyle: true
 });

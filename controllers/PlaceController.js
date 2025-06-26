@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Configuração do S3 com mais opções
 const s3 = new AWS.S3({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: 'us-east-1',
   signatureVersion: 'v4',
   s3ForcePathStyle: true
 });
@@ -119,7 +119,7 @@ exports.uploadPlaceImage = async (event) => {
     console.log('Iniciando upload de imagem...');
     console.log('Headers recebidos:', event.headers);
     console.log('Bucket configurado:', process.env.AWS_BUCKET_NAME);
-    console.log('Região configurada:', process.env.AWS_REGION);
+    console.log('Região configurada: us-east-1');
 
     // Verifica se o Content-Type está presente
     const contentType = event.headers['Content-Type'] || event.headers['content-type'];
