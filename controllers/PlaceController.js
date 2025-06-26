@@ -38,6 +38,11 @@ exports.createPlace = async (event) => {
       return createResponse(404, { error: "Condomínio não encontrado" });
     }
 
+    // Gerar ID único automaticamente se não fornecido
+    if (!placeData.id) {
+      placeData.id = uuidv4();
+    }
+
     const place = new Place(placeData);
     await place.save();
     return createResponse(201, place);

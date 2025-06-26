@@ -116,8 +116,17 @@ exports.getBooksByUserId = async (event) => {
     // Buscar os dados dos places para cada reserva
     const Place = require("../models/Places");
     const formattedBooks = await Promise.all(books.map(async (book) => {
-      // Buscar o place pelo campo id
-      const place = await Place.findOne({ id: book.placeId });
+      // Buscar o place pelo campo id ou _id
+      let place = await Place.findOne({ id: book.placeId });
+      
+      // Se não encontrou por id, tentar por _id (ObjectId)
+      if (!place && book.placeId) {
+        try {
+          place = await Place.findById(book.placeId);
+        } catch (error) {
+          // Ignorar erro se não for um ObjectId válido
+        }
+      }
       
       return {
         placeName: place?.name || 'Local não encontrado',
