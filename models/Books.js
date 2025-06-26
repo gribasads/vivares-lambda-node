@@ -6,7 +6,7 @@ const bookSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    placeName: {
+    placeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Place',
         required: true
@@ -15,13 +15,17 @@ const bookSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    username: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    address: {
+    reason: {
         type: String,
+        required: true
+    },
+    guests: {
+        type: [String],
         required: true
     },
     status: {

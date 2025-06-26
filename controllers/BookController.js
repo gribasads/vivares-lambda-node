@@ -1,4 +1,5 @@
 const Book = require("../models/Books");
+const { v4: uuidv4 } = require('uuid');
 const db = require("../utils/db");
 
 const createResponse = (statusCode, body) => ({
@@ -16,6 +17,10 @@ exports.createBook = async (event) => {
   try {
     await db.ensureConnection();
     const bookData = JSON.parse(event.body);
+    
+    // Gerar ID único automaticamente
+    bookData.id = uuidv4();
+    
     const book = new Book(bookData);
     await book.save();
     return createResponse(201, book);
@@ -28,8 +33,8 @@ exports.getBooks = async (event) => {
   try {
     await db.ensureConnection();
     const books = await Book.find()
-      .populate('placeName')
-      .populate('username');
+      .populate('placeId')
+      .populate('userId');
     return createResponse(200, books);
   } catch (error) {
     return createResponse(500, { error: error.message });
@@ -40,8 +45,8 @@ exports.getBook = async (event) => {
   try {
     await db.ensureConnection();
     const book = await Book.findById(event.pathParameters.id)
-      .populate('placeName')
-      .populate('username');
+      .populate('placeId')
+      .populate('userId');
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
     }
@@ -58,7 +63,7 @@ exports.updateBook = async (event) => {
       event.pathParameters.id,
       JSON.parse(event.body),
       { new: true }
-    ).populate('placeName').populate('username');
+    ).populate('placeId').populate('userId');
     
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
@@ -90,7 +95,7 @@ exports.updateBookStatus = async (event) => {
       event.pathParameters.id,
       { status },
       { new: true }
-    ).populate('placeName').populate('username');
+    ).populate('placeId').populate('userId');
     
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
