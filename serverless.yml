@@ -176,49 +176,147 @@ functions:
       - http:
           path: places/upload-image
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   createPlace:
     handler: handler.createPlace
     events:
       - http:
           path: places
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getPlaces:
     handler: handler.getPlaces
     events:
       - http:
           path: places
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getPlace:
     handler: handler.getPlace
     events:
       - http:
           path: places/{id}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getPlacesByCondominium:
     handler: handler.getPlacesByCondominium
     events:
       - http:
           path: places/condominium/{id}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updatePlace:
     handler: handler.updatePlace
     events:
       - http:
           path: places/{id}
           method: PUT
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   deletePlace:
     handler: handler.deletePlace
     events:
       - http:
           path: places/{id}
           method: DELETE
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
 
   # Books Functions
   createBook:
@@ -227,49 +325,147 @@ functions:
       - http:
           path: books
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getBooks:
     handler: handler.getBooks
     events:
       - http:
           path: books
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getBook:
     handler: handler.getBook
     events:
       - http:
           path: books/{id}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getBooksByUserId:
     handler: handler.getBooksByUserId
     events:
       - http:
           path: books/user/{userId}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updateBook:
     handler: handler.updateBook
     events:
       - http:
           path: books/{id}
           method: PUT
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   deleteBook:
     handler: handler.deleteBook
     events:
       - http:
           path: books/{id}
           method: DELETE
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updateBookStatus:
     handler: handler.updateBookStatus
     events:
       - http:
           path: books/{id}/status
           method: PATCH
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
 
   # Posts Functions
   uploadPostImage:
@@ -278,42 +474,126 @@ functions:
       - http:
           path: posts/upload-image
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   createPost:
     handler: handler.createPost
     events:
       - http:
           path: posts
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getPosts:
     handler: handler.getPosts
     events:
       - http:
           path: posts
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getPost:
     handler: handler.getPost
     events:
       - http:
           path: posts/{id}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updatePost:
     handler: handler.updatePost
     events:
       - http:
           path: posts/{id}
           method: PUT
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   deletePost:
     handler: handler.deletePost
     events:
       - http:
           path: posts/{id}
           method: DELETE
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
 
   # Condominium Functions
   createCondominium:
@@ -322,42 +602,126 @@ functions:
       - http:
           path: condominiums
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getCondominiums:
     handler: handler.getCondominiums
     events:
       - http:
           path: condominiums
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getCondominium:
     handler: handler.getCondominium
     events:
       - http:
           path: condominiums/{id}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updateCondominium:
     handler: handler.updateCondominium
     events:
       - http:
           path: condominiums/{id}
           method: PUT
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   deleteCondominium:
     handler: handler.deleteCondominium
     events:
       - http:
           path: condominiums/{id}
           method: DELETE
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getCondominiumApartments:
     handler: handler.getCondominiumApartments
     events:
       - http:
           path: condominiums/{id}/apartments
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
 
   # Apartment Functions
   createApartment:
@@ -366,42 +730,126 @@ functions:
       - http:
           path: apartments
           method: POST
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getApartments:
     handler: handler.getApartments
     events:
       - http:
           path: apartments
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getApartment:
     handler: handler.getApartment
     events:
       - http:
           path: apartments/{id}
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updateApartment:
     handler: handler.updateApartment
     events:
       - http:
           path: apartments/{id}
           method: PUT
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   deleteApartment:
     handler: handler.deleteApartment
     events:
       - http:
           path: apartments/{id}
           method: DELETE
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   getUserApartments:
     handler: handler.getUserApartments
     events:
       - http:
           path: users/{userId}/apartments
           method: GET
-          cors: true
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
 
 plugins:
   - serverless-offline
