@@ -76,6 +76,10 @@ module.exports.getBooksByUserId = async (event) => {
   return await BookController.getBooksByUserId(event);
 };
 
+module.exports.getBooksByCondominiumId = async (event) => {
+  return await BookController.getBooksByCondominiumId(event);
+};
+
 module.exports.updateBook = async (event) => {
   return await BookController.updateBook(event);
 };

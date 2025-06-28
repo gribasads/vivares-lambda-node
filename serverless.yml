@@ -403,6 +403,27 @@ functions:
               - X-Amz-User-Agent
               - X-Amz-Security-Token
             allowCredentials: true
+  getBooksByCondominiumId:
+    handler: handler.getBooksByCondominiumId
+    events:
+      - http:
+          path: books/condominium/{condominiumId}
+          method: GET
+          cors:
+            origin: ${self:custom.cors.origin.${opt:stage, 'local'}}
+            headers:
+              - Content-Type
+              - Token
+              - token
+              - Authorization
+              - X-Amz-Date
+              - Access-Control-Allow-Origin
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Methods
+              - X-Api-Key
+              - X-Amz-User-Agent
+              - X-Amz-Security-Token
+            allowCredentials: true
   updateBook:
     handler: handler.updateBook
     events:

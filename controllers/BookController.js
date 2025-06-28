@@ -141,4 +141,47 @@ exports.getBooksByUserId = async (event) => {
   } catch (error) {
     return createResponse(500, { error: error.message });
   }
+};
+
+exports.getBooksByCondominiumId = async (event) => {
+  try {
+    await db.ensureConnection();
+    const condominiumId = event.pathParameters.condominiumId;
+    
+    // Primeiro, buscar todos os places que pertencem ao condomínio
+    const Place = require("../models/Places");
+    const places = await Place.find({ condominium: condominiumId });
+    
+    if (!places || places.length === 0) {
+      return createResponse(200, []);
+    }
+    
+    // Extrair os IDs dos places
+    const placeIds = places.map(place => place._id);
+    
+    // Buscar todos os books que estão vinculados a esses places
+    const books = await Book.find({ placeId: { $in: placeIds } })
+      .populate('userId', 'name email')
+      .populate('placeId', 'name');
+    
+    // Formatar a resposta com informações do place e usuário
+    const formattedBooks = books.map(book => ({
+      _id: book._id,
+      id: book.id,
+      placeName: book.placeId?.name || 'Local não encontrado',
+      placeId: book.placeId?._id,
+      dateHour: book.dateHour,
+      reason: book.reason,
+      guests: book.guests,
+      status: book.status,
+      userName: book.userId?.name || 'Usuário não encontrado',
+      userEmail: book.userId?.email,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt
+    }));
+    
+    return createResponse(200, formattedBooks);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
 }; 
