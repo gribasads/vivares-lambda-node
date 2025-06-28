@@ -89,17 +89,51 @@ exports.updateBookStatus = async (event) => {
   try {
     await db.ensureConnection();
     const { status } = JSON.parse(event.body);
+    
+    // Validar se o status é válido
+    const validStatuses = ['pending', 'approved', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return createResponse(400, { 
+        error: "Status inválido. Status válidos são: pending, approved, rejected" 
+      });
+    }
+    
+    // Buscar o book primeiro para verificar se existe
+    const existingBook = await Book.findById(event.pathParameters.id);
+    if (!existingBook) {
+      return createResponse(404, { error: "Reserva não encontrada" });
+    }
+    
+    // Atualizar o status
     const book = await Book.findByIdAndUpdate(
       event.pathParameters.id,
       { status },
       { new: true }
-    ).populate('userId');
+    ).populate('userId', 'name email')
+     .populate('placeId', 'name');
     
-    if (!book) {
-      return createResponse(404, { error: "Reserva não encontrada" });
-    }
-    return createResponse(200, book);
+    // Formatar a resposta
+    const formattedBook = {
+      _id: book._id,
+      id: book.id,
+      placeName: book.placeId?.name || 'Local não encontrado',
+      placeId: book.placeId?._id,
+      dateHour: book.dateHour,
+      reason: book.reason,
+      guests: book.guests,
+      status: book.status,
+      userName: book.userId?.name || 'Usuário não encontrado',
+      userEmail: book.userId?.email,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt
+    };
+    
+    return createResponse(200, {
+      message: `Status da reserva atualizado para: ${status}`,
+      book: formattedBook
+    });
   } catch (error) {
+    console.error('Erro ao atualizar status do book:', error);
     return createResponse(500, { error: error.message });
   }
 };
