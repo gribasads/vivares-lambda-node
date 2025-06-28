@@ -43,7 +43,7 @@ exports.getBooks = async (event) => {
 exports.getBook = async (event) => {
   try {
     await db.ensureConnection();
-    const book = await Book.findById(event.pathParameters.id)
+    const book = await Book.findOne({ id: event.pathParameters.id })
       .populate('userId');
     if (!book) {
       return createResponse(404, { error: "Reserva não encontrada" });
@@ -57,15 +57,19 @@ exports.getBook = async (event) => {
 exports.updateBook = async (event) => {
   try {
     await db.ensureConnection();
+    // Primeiro buscar o book pelo UUID
+    const existingBook = await Book.findOne({ id: event.pathParameters.id });
+    if (!existingBook) {
+      return createResponse(404, { error: "Reserva não encontrada" });
+    }
+    
+    // Atualizar usando o _id do documento encontrado
     const book = await Book.findByIdAndUpdate(
-      event.pathParameters.id,
+      existingBook._id,
       JSON.parse(event.body),
       { new: true }
     ).populate('userId');
     
-    if (!book) {
-      return createResponse(404, { error: "Reserva não encontrada" });
-    }
     return createResponse(200, book);
   } catch (error) {
     return createResponse(500, { error: error.message });
@@ -75,10 +79,14 @@ exports.updateBook = async (event) => {
 exports.deleteBook = async (event) => {
   try {
     await db.ensureConnection();
-    const book = await Book.findByIdAndDelete(event.pathParameters.id);
-    if (!book) {
+    // Primeiro buscar o book pelo UUID
+    const existingBook = await Book.findOne({ id: event.pathParameters.id });
+    if (!existingBook) {
       return createResponse(404, { error: "Reserva não encontrada" });
     }
+    
+    // Deletar usando o _id do documento encontrado
+    const book = await Book.findByIdAndDelete(existingBook._id);
     return createResponse(200, { message: "Reserva removida com sucesso" });
   } catch (error) {
     return createResponse(500, { error: error.message });
@@ -98,15 +106,15 @@ exports.updateBookStatus = async (event) => {
       });
     }
     
-    // Buscar o book primeiro para verificar se existe
-    const existingBook = await Book.findById(event.pathParameters.id);
+    // Buscar o book pelo campo 'id' (UUID) em vez do '_id' (ObjectId)
+    const existingBook = await Book.findOne({ id: event.pathParameters.id });
     if (!existingBook) {
       return createResponse(404, { error: "Reserva não encontrada" });
     }
     
-    // Atualizar o status
+    // Atualizar o status usando o _id do documento encontrado
     const book = await Book.findByIdAndUpdate(
-      event.pathParameters.id,
+      existingBook._id,
       { status },
       { new: true }
     ).populate('userId', 'name email')
