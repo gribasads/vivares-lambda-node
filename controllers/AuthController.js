@@ -70,7 +70,8 @@ exports.verifyCode = async (event) => {
     const tokenPayload = {
       userId: user._id,
       email: user.email,
-      name: user.name
+      name: user.name,
+      isAdmin: user.isAdmin
     };
 
     if (apartment) {
@@ -92,6 +93,7 @@ exports.verifyCode = async (event) => {
             id: decoded.userId,
             email: decoded.email,
             name: decoded.name,
+            isAdmin: user.isAdmin,
             apartmentId: decoded.apartmentId,
             condominiumId: decoded.condominiumId,
             apartmentNumber: decoded.apartmentNumber,
@@ -121,6 +123,7 @@ exports.verifyCode = async (event) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        isAdmin: user.isAdmin,
         apartmentId: apartment?._id,
         condominiumId: apartment?.condominium?._id,
         apartmentNumber: apartment?.number,
@@ -159,7 +162,8 @@ exports.updateUserName = async (event) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        isAdmin: user.isAdmin
       }
     });
   } catch (error) {
@@ -229,6 +233,7 @@ exports.getUserProfile = async (event) => {
         id: decoded.userId,
         email: decoded.email,
         name: decoded.name,
+        isAdmin: decoded.isAdmin,
         apartmentId: decoded.apartmentId,
         condominiumId: decoded.condominiumId,
         apartmentNumber: decoded.apartmentNumber,
@@ -253,6 +258,7 @@ exports.getUserProfile = async (event) => {
       id: user._id,
       email: user.email,
       name: user.name,
+      isAdmin: user.isAdmin,
       apartmentId: apartment?._id,
       condominiumId: apartment?.condominium?._id,
       apartmentNumber: apartment?.number,
@@ -265,4 +271,31 @@ exports.getUserProfile = async (event) => {
     console.error('Erro em getUserProfile:', error);
     return createResponse(500, { error: error.message });
   }
-}; 
+};
+
+exports.toggleUserAdmin = async (event) => {
+  try {
+    await db.ensureConnection();
+    
+    // ID do usuário que terá o status alterado
+    const targetUserId = event.pathParameters.id;
+    
+    // Buscar o usuário alvo
+    const targetUser = await User.findById(targetUserId).exec();
+    if (!targetUser) {
+      return createResponse(404, { error: "Usuário não encontrado" });
+    }
+
+    // Alternar o status isAdmin
+    targetUser.isAdmin = !targetUser.isAdmin;
+    await targetUser.save();
+
+    return createResponse(200, {
+      isAdmin: targetUser.isAdmin,
+      message: `Status de administrador ${targetUser.isAdmin ? 'ativado' : 'desativado'} com sucesso`
+    });
+  } catch (error) {
+    console.error('Erro em toggleUserAdmin:', error);
+    return createResponse(500, { error: error.message });
+  }
+};

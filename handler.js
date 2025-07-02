@@ -30,6 +30,10 @@ module.exports.getUserProfile = async (event) => {
   return await AuthController.getUserProfile(event);
 };
 
+module.exports.toggleUserAdmin = async (event) => {
+  return await AuthController.toggleUserAdmin(event);
+};
+
 // Place Handlers
 module.exports.createPlace = async (event) => {
   return await PlaceController.createPlace(event);
