@@ -1,4 +1,5 @@
 const Book = require("../models/Books");
+const Place = require("../models/Places");
 const { v4: uuidv4 } = require('uuid');
 const db = require("../utils/db");
 
@@ -13,10 +14,103 @@ const createResponse = (statusCode, body) => ({
   body: JSON.stringify(body)
 });
 
+// Função auxiliar para validar horário de funcionamento
+const validateOperatingHours = (place, reservationDate) => {
+  const reservationTime = new Date(reservationDate);
+  const reservationHour = reservationTime.getHours();
+  const reservationMinute = reservationTime.getMinutes();
+  
+  // Converter horários de abertura e fechamento para minutos
+  const [openHour, openMinute] = place.openingTime.split(':').map(Number);
+  const [closeHour, closeMinute] = place.closingTime.split(':').map(Number);
+  
+  const openMinutes = openHour * 60 + openMinute;
+  const closeMinutes = closeHour * 60 + closeMinute;
+  const reservationMinutes = reservationHour * 60 + reservationMinute;
+  
+  return reservationMinutes >= openMinutes && reservationMinutes <= closeMinutes;
+};
+
+// Função auxiliar para verificar conflitos de reserva
+const checkReservationConflicts = async (placeId, reservationDate, excludeBookId = null) => {
+  const startOfDay = new Date(reservationDate);
+  startOfDay.setHours(0, 0, 0, 0);
+  
+  const endOfDay = new Date(reservationDate);
+  endOfDay.setHours(23, 59, 59, 999);
+  
+  const query = {
+    placeId,
+    dateHour: { $gte: startOfDay, $lte: endOfDay },
+    status: { $in: ['pending', 'approved'] } // Apenas reservas ativas
+  };
+  
+  if (excludeBookId) {
+    query._id = { $ne: excludeBookId };
+  }
+  
+  const existingBookings = await Book.find(query);
+  return existingBookings;
+};
+
 exports.createBook = async (event) => {
   try {
     await db.ensureConnection();
     const bookData = JSON.parse(event.body);
+    
+    // Validar se o place existe
+    const place = await Place.findById(bookData.placeId);
+    if (!place) {
+      return createResponse(404, { error: "Local não encontrado" });
+    }
+    
+    // Validar horário de funcionamento
+    if (!validateOperatingHours(place, bookData.dateHour)) {
+      return createResponse(400, { 
+        error: `Horário fora do funcionamento. O local funciona das ${place.openingTime} às ${place.closingTime}` 
+      });
+    }
+    
+    // Verificar conflitos de reserva baseado no tipo de reserva
+    const existingBookings = await checkReservationConflicts(bookData.placeId, bookData.dateHour);
+    
+    if (place.reservationType === 'single') {
+      // Para lugares de reserva única, verificar se já existe reserva no mesmo dia
+      if (existingBookings.length > 0) {
+        return createResponse(409, { 
+          error: "Este local já possui uma reserva para este dia. Lugares de reserva única não permitem múltiplas reservas no mesmo dia." 
+        });
+      }
+    } else if (place.reservationType === 'multiple') {
+      // Para lugares múltiplos, verificar capacidade
+      const totalGuests = existingBookings.reduce((sum, booking) => sum + booking.guests.length, 0);
+      const newGuests = bookData.guests ? bookData.guests.length : 0;
+      
+      if (totalGuests + newGuests > place.maxCapacity) {
+        return createResponse(409, { 
+          error: `Capacidade excedida. Capacidade máxima: ${place.maxCapacity} pessoas. Já reservado: ${totalGuests} pessoas.` 
+        });
+      }
+      
+      // Verificar se permite sobreposição
+      if (!place.reservationSettings.allowOverlap) {
+        const reservationTime = new Date(bookData.dateHour);
+        const timeSlotEnd = new Date(reservationTime.getTime() + (place.timeSlot * 60000));
+        
+        const hasOverlap = existingBookings.some(booking => {
+          const bookingTime = new Date(booking.dateHour);
+          const bookingEnd = new Date(bookingTime.getTime() + (place.timeSlot * 60000));
+          
+          return (reservationTime < bookingEnd && timeSlotEnd > bookingTime);
+        });
+        
+        if (hasOverlap) {
+          return createResponse(409, { 
+            error: "Existe sobreposição de horários com outra reserva. Este local não permite sobreposições." 
+          });
+        }
+      }
+    }
     
     // Gerar ID único automaticamente
     bookData.id = uuidv4();
@@ -57,16 +151,75 @@ exports.getBook = async (event) => {
 exports.updateBook = async (event) => {
   try {
     await db.ensureConnection();
+    const updateData = JSON.parse(event.body);
+    
     // Primeiro buscar o book pelo UUID
     const existingBook = await Book.findOne({ id: event.pathParameters.id });
     if (!existingBook) {
       return createResponse(404, { error: "Reserva não encontrada" });
     }
     
+    // Se a data/hora está sendo atualizada, validar novamente
+    if (updateData.dateHour) {
+      // Validar se o place existe
+      const place = await Place.findById(existingBook.placeId);
+      if (!place) {
+        return createResponse(404, { error: "Local não encontrado" });
+      }
+      
+      // Validar horário de funcionamento
+      if (!validateOperatingHours(place, updateData.dateHour)) {
+        return createResponse(400, { 
+          error: `Horário fora do funcionamento. O local funciona das ${place.openingTime} às ${place.closingTime}` 
+        });
+      }
+      
+      // Verificar conflitos de reserva baseado no tipo de reserva
+      const existingBookings = await checkReservationConflicts(existingBook.placeId, updateData.dateHour, existingBook._id);
+      
+      if (place.reservationType === 'single') {
+        // Para lugares de reserva única, verificar se já existe reserva no mesmo dia
+        if (existingBookings.length > 0) {
+          return createResponse(409, { 
+            error: "Este local já possui uma reserva para este dia. Lugares de reserva única não permitem múltiplas reservas no mesmo dia." 
+          });
+        }
+      } else if (place.reservationType === 'multiple') {
+        // Para lugares múltiplos, verificar capacidade
+        const totalGuests = existingBookings.reduce((sum, booking) => sum + booking.guests.length, 0);
+        const newGuests = updateData.guests ? updateData.guests.length : existingBook.guests.length;
+        
+        if (totalGuests + newGuests > place.maxCapacity) {
+          return createResponse(409, { 
+            error: `Capacidade excedida. Capacidade máxima: ${place.maxCapacity} pessoas. Já reservado: ${totalGuests} pessoas.` 
+          });
+        }
+        
+        // Verificar se permite sobreposição
+        if (!place.reservationSettings.allowOverlap) {
+          const reservationTime = new Date(updateData.dateHour);
+          const timeSlotEnd = new Date(reservationTime.getTime() + (place.timeSlot * 60000));
+          
+          const hasOverlap = existingBookings.some(booking => {
+            const bookingTime = new Date(booking.dateHour);
+            const bookingEnd = new Date(bookingTime.getTime() + (place.timeSlot * 60000));
+            
+            return (reservationTime < bookingEnd && timeSlotEnd > bookingTime);
+          });
+          
+          if (hasOverlap) {
+            return createResponse(409, { 
+              error: "Existe sobreposição de horários com outra reserva. Este local não permite sobreposições." 
+            });
+          }
+        }
+      }
+    }
+    
     // Atualizar usando o _id do documento encontrado
     const book = await Book.findByIdAndUpdate(
       existingBook._id,
-      JSON.parse(event.body),
+      updateData,
       { new: true }
     ).populate('userId');
     
@@ -156,7 +309,6 @@ exports.getBooksByUserId = async (event) => {
       .populate('userId', 'name email');
     
     // Buscar os dados dos places para cada reserva
-    const Place = require("../models/Places");
     const formattedBooks = await Promise.all(books.map(async (book) => {
       // Buscar o place pelo campo id ou _id
       let place = await Place.findOne({ id: book.placeId });
@@ -191,7 +343,6 @@ exports.getBooksByCondominiumId = async (event) => {
     const condominiumId = event.pathParameters.condominiumId;
     
     // Primeiro, buscar todos os places que pertencem ao condomínio
-    const Place = require("../models/Places");
     const places = await Place.find({ condominium: condominiumId });
     
     if (!places || places.length === 0) {
@@ -223,6 +374,48 @@ exports.getBooksByCondominiumId = async (event) => {
     }));
     
     return createResponse(200, formattedBooks);
+  } catch (error) {
+    return createResponse(500, { error: error.message });
+  }
+};
+
+// Nova função para verificar disponibilidade de um lugar
+exports.checkPlaceAvailability = async (event) => {
+  try {
+    await db.ensureConnection();
+    const { placeId, date } = event.queryStringParameters || {};
+    
+    if (!placeId || !date) {
+      return createResponse(400, { error: "placeId e date são obrigatórios" });
+    }
+    
+    // Buscar o lugar
+    const place = await Place.findById(placeId);
+    if (!place) {
+      return createResponse(404, { error: "Local não encontrado" });
+    }
+    
+    // Verificar reservas existentes para a data
+    const existingBookings = await checkReservationConflicts(placeId, date);
+    
+    let isAvailable = true;
+    
+    if (place.reservationType === 'single') {
+      // Para lugares de reserva única, verificar se já existe reserva no mesmo dia
+      if (existingBookings.length > 0) {
+        isAvailable = false;
+      }
+    } else if (place.reservationType === 'multiple') {
+      // Para lugares múltiplos, verificar capacidade
+      const totalGuests = existingBookings.reduce((sum, booking) => sum + booking.guests.length, 0);
+      const availableCapacity = place.maxCapacity - totalGuests;
+      
+      if (availableCapacity <= 0) {
+        isAvailable = false;
+      }
+    }
+    
+    return createResponse(200, { available: isAvailable });
   } catch (error) {
     return createResponse(500, { error: error.message });
   }

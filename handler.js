@@ -96,6 +96,10 @@ module.exports.updateBookStatus = async (event) => {
   return await BookController.updateBookStatus(event);
 };
 
+module.exports.checkPlaceAvailability = async (event) => {
+  return await BookController.checkPlaceAvailability(event);
+};
+
 // Post Handlers
 module.exports.uploadImage = async (event) => {
   return await PostController.uploadImage(event);
