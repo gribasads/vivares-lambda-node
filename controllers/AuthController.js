@@ -61,12 +61,10 @@ exports.verifyCode = async (event) => {
       return createResponse(400, { error: "Código inválido ou expirado" });
     }
 
-    // Buscar apartamento do usuário
     const apartment = await Apartment.findOne({ owner: user._id })
       .populate('condominium')
       .exec();
 
-    // Preparar payload do JWT com dados necessários
     const tokenPayload = {
       userId: user._id,
       email: user.email,
@@ -82,11 +80,9 @@ exports.verifyCode = async (event) => {
     }
 
     if (user.authToken) {
-      // Verificar se o token atual ainda é válido
       try {
         const decoded = jwt.verify(user.authToken, process.env.JWT_SECRET);
         
-        // Se o token for válido, usar os dados dele diretamente
         return createResponse(200, {
           token: user.authToken,
           user: {
@@ -101,7 +97,6 @@ exports.verifyCode = async (event) => {
           }
         });
       } catch (error) {
-        // Token expirado ou inválido, gerar novo
         console.log('Token expirado ou inválido, gerando novo...');
       }
     }
@@ -216,7 +211,6 @@ exports.getUserProfile = async (event) => {
   try {
     await db.ensureConnection();
     
-    // Extrair token do header Authorization
     const authHeader = event.headers.Authorization || event.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return createResponse(401, { error: "Token de autorização não fornecido" });
@@ -224,10 +218,8 @@ exports.getUserProfile = async (event) => {
 
     const token = authHeader.substring(7);
     
-    // Verificar e decodificar o token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'seu_segredo_jwt');
     
-    // Se o token já contém os dados necessários, usar diretamente
     if (decoded.apartmentId && decoded.condominiumId) {
       const userProfile = {
         id: decoded.userId,
@@ -243,13 +235,11 @@ exports.getUserProfile = async (event) => {
       return createResponse(200, userProfile);
     }
     
-    // Se o token não contém dados completos, buscar no banco
     const user = await User.findById(decoded.userId).exec();
     if (!user) {
       return createResponse(404, { error: "Usuário não encontrado" });
     }
 
-    // Buscar apartamento e condomínio
     const apartment = await Apartment.findOne({ owner: user._id })
       .populate('condominium')
       .exec();
@@ -277,16 +267,13 @@ exports.toggleUserAdmin = async (event) => {
   try {
     await db.ensureConnection();
     
-    // ID do usuário que terá o status alterado
     const targetUserId = event.pathParameters.id;
     
-    // Buscar o usuário alvo
     const targetUser = await User.findById(targetUserId).exec();
     if (!targetUser) {
       return createResponse(404, { error: "Usuário não encontrado" });
     }
 
-    // Alternar o status isAdmin
     targetUser.isAdmin = !targetUser.isAdmin;
     await targetUser.save();
 

@@ -107,7 +107,6 @@ exports.deletePost = async (event) => {
       return createResponse(404, { error: "Post não encontrado" });
     }
 
-    // Deletar imagens do S3
     if (post.images && post.images.length > 0) {
       const deletePromises = post.images.map(imageUrl => {
         const key = imageUrl.split('/').pop();

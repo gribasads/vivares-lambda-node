@@ -19,13 +19,11 @@ exports.createApartment = async (event) => {
     await db.ensureConnection();
     const apartmentData = JSON.parse(event.body);
 
-    // Verificar se o condomínio existe
     const condominium = await Condominium.findById(apartmentData.condominium);
     if (!condominium) {
       return createResponse(404, { error: "Condomínio não encontrado" });
     }
 
-    // Se tiver owner, verificar se o usuário existe
     if (apartmentData.owner) {
       const owner = await User.findById(apartmentData.owner);
       if (!owner) {
@@ -36,7 +34,6 @@ exports.createApartment = async (event) => {
     const apartment = new Apartment(apartmentData);
     await apartment.save();
     
-    // Retornar o apartamento com as referências populadas
     const populatedApartment = await Apartment.findById(apartment._id)
       .populate('condominium', 'name')
       .populate('owner', 'name email');
@@ -80,7 +77,6 @@ exports.updateApartment = async (event) => {
     await db.ensureConnection();
     const apartmentData = JSON.parse(event.body);
 
-    // Verificar se o condomínio existe
     if (apartmentData.condominium) {
       const condominium = await Condominium.findById(apartmentData.condominium);
       if (!condominium) {
@@ -88,7 +84,6 @@ exports.updateApartment = async (event) => {
       }
     }
 
-    // Se tiver owner, verificar se o usuário existe
     if (apartmentData.owner) {
       const owner = await User.findById(apartmentData.owner);
       if (!owner) {
