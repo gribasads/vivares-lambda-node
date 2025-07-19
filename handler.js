@@ -5,7 +5,6 @@ const PostController = require("./controllers/PostController");
 const CondominiumController = require("./controllers/CondominiumController");
 const ApartmentController = require("./controllers/ApartmentController");
 
-// Auth Handlers
 module.exports.requestCode = async (event) => {
   return await AuthController.requestCode(event);
 };
@@ -34,7 +33,6 @@ module.exports.toggleUserAdmin = async (event) => {
   return await AuthController.toggleUserAdmin(event);
 };
 
-// Place Handlers
 module.exports.createPlace = async (event) => {
   return await PlaceController.createPlace(event);
 };
@@ -63,7 +61,6 @@ module.exports.uploadPlaceImage = async (event) => {
   return await PlaceController.uploadPlaceImage(event);
 };
 
-// Book Handlers
 module.exports.createBook = async (event) => {
   return await BookController.createBook(event);
 };
@@ -100,7 +97,6 @@ module.exports.checkPlaceAvailability = async (event) => {
   return await BookController.checkPlaceAvailability(event);
 };
 
-// Post Handlers
 module.exports.uploadImage = async (event) => {
   return await PostController.uploadImage(event);
 };
@@ -129,7 +125,6 @@ module.exports.uploadPostImage = async (event) => {
   return await PostController.uploadPostImage(event);
 };
 
-// Condominium Handlers
 module.exports.createCondominium = async (event) => {
   return await CondominiumController.createCondominium(event);
 };
@@ -154,7 +149,6 @@ module.exports.getCondominiumApartments = async (event) => {
   return await CondominiumController.getCondominiumApartments(event);
 };
 
-// Apartment Handlers
 module.exports.createApartment = async (event) => {
   return await ApartmentController.createApartment(event);
 };

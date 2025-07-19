@@ -13,17 +13,16 @@ const placeSchema = new mongoose.Schema({
     image: [{
         type: String, 
         required: false
-      }],
+    }],
     needPayment: {
         type: Boolean,
         required: true
-      },
-      condominium: {
+    },
+    condominium: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Condominium',
         required: true
     },
-    // Novos campos para controle de reservas
     reservationType: {
         type: String,
         enum: ['single', 'multiple'],
@@ -36,18 +35,17 @@ const placeSchema = new mongoose.Schema({
         required: true
     },
     timeSlot: {
-        type: Number, // duração padrão em minutos
+        type: Number,
         default: 60,
         required: true
     },
-    // Horários de funcionamento
     openingTime: {
-        type: String, // formato "HH:MM" (ex: "08:00")
+        type: String,
         required: true,
         default: "08:00"
     },
     closingTime: {
-        type: String, // formato "HH:MM" (ex: "22:00")
+        type: String,
         required: true,
         default: "22:00"
     },
@@ -61,7 +59,7 @@ const placeSchema = new mongoose.Schema({
             default: 1
         },
         timeBuffer: {
-            type: Number, // tempo mínimo entre reservas (minutos)
+            type: Number,
             default: 0
         }
     }

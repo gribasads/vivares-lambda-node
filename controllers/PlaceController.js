@@ -4,7 +4,6 @@ const db = require("../utils/db");
 const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
 
-// Configuração do S3 com mais opções
 const s3 = new AWS.S3({
   region: 'us-east-1',
   signatureVersion: 'v4',
@@ -27,18 +26,15 @@ exports.createPlace = async (event) => {
     await db.ensureConnection();
     const placeData = JSON.parse(event.body);
 
-    // Validação do ID do condomínio
     if (!placeData.condominium) {
       return createResponse(400, { error: "ID do condomínio é obrigatório" });
     }
 
-    // Verifica se o condomínio existe
     const condominium = await Condominium.findById(placeData.condominium);
     if (!condominium) {
       return createResponse(404, { error: "Condomínio não encontrado" });
     }
 
-    // Gerar ID único automaticamente se não fornecido
     if (!placeData.id) {
       placeData.id = uuidv4();
     }
@@ -121,14 +117,12 @@ exports.uploadPlaceImage = async (event) => {
     console.log('Bucket configurado:', process.env.AWS_BUCKET_NAME);
     console.log('Região configurada: us-east-1');
 
-    // Verifica se o Content-Type está presente
     const contentType = event.headers['Content-Type'] || event.headers['content-type'];
     if (!contentType) {
       console.log('Content-Type não encontrado nos headers');
       return createResponse(415, { error: "Content-Type não especificado" });
     }
 
-    // Verifica se é uma imagem
     if (!contentType.startsWith('image/')) {
       console.log('Content-Type inválido:', contentType);
       return createResponse(415, { error: "O arquivo deve ser uma imagem" });
