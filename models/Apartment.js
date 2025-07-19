@@ -14,10 +14,10 @@ const apartmentSchema = new mongoose.Schema({
         ref: 'Condominium',
         required: true
     },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: false // se quiser permitir apartamentos sem dono definido
+        owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false
     }
 });
 module.exports = mongoose.model('Apartment', apartmentSchema);

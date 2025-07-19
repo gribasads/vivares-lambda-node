@@ -17,11 +17,11 @@ exports.connect = async () => {
       useNewUrlParser: true,
       dbName: 'vivares',
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // Aumentado para 30 segundos
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000, // Adicionado timeout de conexão
-      maxPoolSize: 10, // Limita o número de conexões
-      minPoolSize: 1, // Mantém pelo menos uma conexão
+          serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 30000,
+    maxPoolSize: 10,
+    minPoolSize: 1,
       retryWrites: true,
       retryReads: true
     });
@@ -35,7 +35,6 @@ exports.connect = async () => {
   }
 };
 
-// Função para garantir que a conexão está ativa
 exports.ensureConnection = async () => {
   try {
     console.log('Verificando estado da conexão...');

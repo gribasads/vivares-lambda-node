@@ -70,7 +70,6 @@ exports.deleteCondominium = async (event) => {
     await db.ensureConnection();
     const condominiumId = event.pathParameters.id;
 
-    // Verificar se existem apartamentos associados
     const apartmentsCount = await Apartment.countDocuments({ condominium: condominiumId });
     if (apartmentsCount > 0) {
       return createResponse(400, { 
